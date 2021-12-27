@@ -1,0 +1,6 @@
+[workspace]
+members = [
+  "domains/backlog",
+  "ports",
+  "usecases/uc-backlog"
+]
