@@ -1,9 +1,10 @@
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::{Assignable, Assignee, BacklogItem, Entity, Estimatable, StoryPoint, Title};
 
 /// It means the user story.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(test, derive(getset::Setters), set = "pub")]
 pub struct Story {
     id: Uuid,
@@ -23,6 +24,7 @@ impl Story {
     }
 }
 
+#[typetag::serde]
 impl BacklogItem for Story {}
 
 impl Entity for Story {

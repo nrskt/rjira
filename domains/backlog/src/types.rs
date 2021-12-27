@@ -1,6 +1,8 @@
+use serde::{Deserialize, Serialize};
+
 use crate::{BacklogError, BacklogResult};
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Title(String);
 
 impl Title {
@@ -9,7 +11,7 @@ impl Title {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Assignee(String);
 
 impl Assignee {
@@ -18,7 +20,7 @@ impl Assignee {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct StoryPoint(u8);
 
 impl StoryPoint {

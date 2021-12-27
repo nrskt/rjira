@@ -1,9 +1,10 @@
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::{Assignable, Assignee, BacklogItem, Entity, Estimatable, StoryPoint, Title};
 
 /// It means the task.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Task {
     id: Uuid,
     title: Title,
@@ -22,6 +23,7 @@ impl Task {
     }
 }
 
+#[typetag::serde]
 impl BacklogItem for Task {}
 
 impl Entity for Task {

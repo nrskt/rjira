@@ -1,4 +1,5 @@
 use indexmap::IndexMap;
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::{
@@ -6,7 +7,7 @@ use crate::{
     FindFromCollection,
 };
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Backlog {
     id: Uuid,
     items: IndexMap<Uuid, Box<dyn BacklogItem>>,

@@ -26,9 +26,6 @@ mod tests {
 
         assert!(col.find_by_id_mut(&0).is_none());
         assert!(col.find_by_id_mut(&1).is_some());
-        let s = col.find_by_id_mut(&1).unwrap();
-        *s = "fugafuga".to_string();
-        println!("{:?}", col);
     }
 
     impl<Key: Hash + Eq, Val: Clone> FindFromCollection for IndexMap<Key, Val> {
