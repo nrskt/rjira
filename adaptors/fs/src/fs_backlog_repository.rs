@@ -2,7 +2,7 @@ use std::fs::File;
 use std::path::PathBuf;
 
 use backlog::Backlog;
-use ports::{BacklogRepository, PortsResult};
+use backlog_repo::{BacklogRepository, PortsResult};
 
 pub struct FsBacklogRepository {
     path: PathBuf,

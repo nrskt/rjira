@@ -1,5 +1,5 @@
 [package]
-name = "uc-backlog"
+name = "backlog-service"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,6 +7,6 @@ edition = "2021"
 
 [dependencies]
 thiserror = "1.0.30"
-ports = { path = "../../ports" }
-backlog = { path = "../../domains/backlog" }
+backlog-repo = { path = "../../driven/backlog-repo" }
+backlog = { path = "../../../cores/backlog" }
 async-trait = "0.1.52"

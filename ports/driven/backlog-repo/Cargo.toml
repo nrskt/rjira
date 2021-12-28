@@ -1,5 +1,5 @@
 [package]
-name = "adaptors"
+name = "backlog-repo"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,6 +7,6 @@ edition = "2021"
 
 [dependencies]
 async-trait = "0.1.52"
-backlog = { path = "../domains/backlog" }
-ports = { path = "../ports" }
+backlog = { path = "../../../cores/backlog" }
+thiserror = "1.0.30"
 serde_yaml = "0.8.23"

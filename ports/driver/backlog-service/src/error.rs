@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 
 use backlog::BacklogError;
-use ports::PortsError;
+use backlog_repo::PortsError;
 use thiserror::Error;
 
 pub type UseCaseResult<T> = Result<T, UseCaseError>;

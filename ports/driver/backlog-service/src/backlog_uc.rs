@@ -2,7 +2,7 @@ use backlog::{
     AddItem, AssignableFromCollection, Assignee, Backlog, BacklogItem, EstimatableFromCollection,
     StoryPoint, Uuid,
 };
-use ports::{BacklogRepository, ProvideBacklogRepository};
+use backlog_repo::{BacklogRepository, ProvideBacklogRepository};
 
 use crate::UseCaseResult;
 
