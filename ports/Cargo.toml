@@ -9,3 +9,4 @@ edition = "2021"
 async-trait = "0.1.52"
 backlog = { path = "../domains/backlog" }
 thiserror = "1.0.30"
+serde_yaml = "0.8.23"
