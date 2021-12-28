@@ -1,6 +1,7 @@
 [workspace]
 members = [
   "adaptors",
+  "apps/cli",
   "domains/backlog",
   "ports",
   "usecases/uc-backlog"
