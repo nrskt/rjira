@@ -1,9 +1,10 @@
 [workspace]
 members = [
-  "adaptors/fs",
-  "adaptors/cli",
-  "adaptors/rest",
   "adaptors/app",
+  "adaptors/cli",
+  "adaptors/fs",
+  "adaptors/rest",
+  "applications/rest-server",
   "cores/backlog",
   "ports/driven/backlog-repo",
   "ports/driver/backlog-service",

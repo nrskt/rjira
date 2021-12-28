@@ -11,7 +11,8 @@ pub trait BacklogUseCase: ProvideBacklogRepository {
     /// Add item to backlog
     async fn add_item(&self, cmd: impl AddItemCmd + 'async_trait) -> UseCaseResult<Backlog> {
         let repo = self.provide();
-        let mut backlog = repo.get().await?;
+        // let mut backlog = repo.get().await?;
+        let mut backlog = Backlog::new();
         backlog.add_item(cmd.item());
         repo.save(backlog.clone()).await?;
         Ok(backlog)

@@ -7,14 +7,23 @@ use serde::Deserialize;
 use serde_json::json;
 
 pub async fn add_item(
-    Extension(ctx): Extension<RestAdaptor>,
     Json(payload): Json<AddItemRequest>,
+    Extension(ctx): Extension<RestAdaptor>,
 ) -> Result<Json<Backlog>, RestError> {
     ctx.add_item(payload).await.map(Json).map_err(RestError)
 }
 
+#[derive(Debug, Clone)]
 pub struct RestAdaptor {
     fs: FsBacklogRepository,
+}
+
+impl RestAdaptor {
+    pub fn new(path: &str) -> Self {
+        Self {
+            fs: FsBacklogRepository::new(path.into()),
+        }
+    }
 }
 
 impl BacklogUseCase for RestAdaptor {}
