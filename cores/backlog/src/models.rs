@@ -8,7 +8,7 @@ mod find_from_collection;
 mod story;
 mod task;
 
-pub use self::backlog::Backlog;
+pub use self::backlog::{Backlog, BacklogFixture};
 pub use add_item::AddItem;
 pub use assignable::{Assignable, AssignableFromCollection};
 pub use backlog_item::BacklogItem;

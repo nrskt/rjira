@@ -6,6 +6,9 @@ pub trait FindFromCollection {
     type Key;
     type Ret;
 
+    fn len(&self) -> usize;
+    fn is_empty(&self) -> bool;
+
     /// find a specific item.
     fn find_by_id_mut(&mut self, key: &Self::Key) -> Option<&mut Self::Ret>;
 }
@@ -31,6 +34,14 @@ mod tests {
     impl<Key: Hash + Eq, Val: Clone> FindFromCollection for IndexMap<Key, Val> {
         type Key = Key;
         type Ret = Val;
+
+        fn len(&self) -> usize {
+            self.len()
+        }
+
+        fn is_empty(&self) -> bool {
+            self.is_empty()
+        }
 
         fn find_by_id_mut(&mut self, key: &Self::Key) -> Option<&mut Self::Ret> {
             self.get_mut(key)
