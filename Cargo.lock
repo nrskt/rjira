@@ -177,7 +177,11 @@ dependencies = [
 name = "cli"
 version = "0.1.0"
 dependencies = [
+ "backlog",
+ "backlog-repo",
+ "backlog-service",
  "clap",
+ "fs",
 ]
 
 [[package]]
@@ -760,8 +764,15 @@ dependencies = [
 name = "rest-server"
 version = "0.1.0"
 dependencies = [
- "axum",
  "rest",
+ "tokio",
+]
+
+[[package]]
+name = "rjira"
+version = "0.1.0"
+dependencies = [
+ "cli",
  "tokio",
 ]
 
