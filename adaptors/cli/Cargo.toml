@@ -6,4 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+backlog = { path = "../../cores/backlog" }
+backlog-repo = { path = "../../ports/driven/backlog-repo" } 
+backlog-service = { path = "../../ports/driver/backlog-service" } 
 clap = { version = "3.0.0-rc.9", features = ["derive"] }
+fs = { path = "../fs"}
