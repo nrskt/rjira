@@ -19,8 +19,11 @@ impl FsBacklogRepository {
 impl BacklogRepository for FsBacklogRepository {
     async fn get(&self) -> PortsResult<Backlog> {
         let file = File::open(&self.path)?;
-        let backlog = serde_yaml::from_reader(file)?;
-        Ok(backlog)
+        let backlog = serde_yaml::from_reader(file);
+        match backlog {
+            Err(_) => Ok(Backlog::new()),
+            Ok(backlog) => Ok(backlog),
+        }
     }
 
     async fn save(&self, backlog: Backlog) -> PortsResult<()> {

@@ -8,11 +8,16 @@ use crate::UseCaseResult;
 
 #[async_trait::async_trait]
 pub trait BacklogUseCase: ProvideBacklogRepository {
+    async fn get_backlog(&self) -> UseCaseResult<Backlog> {
+        let repo = self.provide();
+        let backlog = repo.get().await?;
+        Ok(backlog)
+    }
+
     /// Add item to backlog
     async fn add_item(&self, cmd: impl AddItemCmd + 'async_trait) -> UseCaseResult<Backlog> {
         let repo = self.provide();
-        // let mut backlog = repo.get().await?;
-        let mut backlog = Backlog::new();
+        let mut backlog = repo.get().await?;
         backlog.add_item(cmd.item());
         repo.save(backlog.clone()).await?;
         Ok(backlog)
