@@ -1,6 +1,5 @@
 [workspace]
 members = [
-  "adaptors/app",
   "adaptors/cli",
   "adaptors/fs",
   "adaptors/rest",
