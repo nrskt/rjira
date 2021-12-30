@@ -184,7 +184,10 @@ mod test_get_backlog {
 
 Driven
 
-`Driven` interface is defined with `Provide~` trait.
+`Driven` interface is defined with `Provide~` trait together.
+This pattern like the "Cake Pattern" in Scala.
+
+Define `Driven` interface.
 
 ```rust
 pub trait ProvideBacklogRepository {
@@ -207,7 +210,91 @@ pub trait BacklogRepository {
 
 ### adaptors/***
 
+Adaptors implement the port interfaces.
+For example, If we want to save the backlog to the file system,
+we should implement a repository interface for someone that knows
+how to use the file system.
+
+`Driven` adaptor implementation.
+
+I defined the struct that knows the file path.
+The struct knows how to save the backlog through the `Driven` interface (`BacklogRepository`).
+
+Of cause, If we want to persist backlog to in-memory,
+we can use a data structure such as a `HashMap`.
+
+```rust
+#[derive(Debug, Clone)]
+pub struct FsBacklogRepository {
+    path: PathBuf,
+}
+
+#[async_trait::async_trait]
+impl BacklogRepository for FsBacklogRepository {
+    async fn get(&self) -> PortsResult<Backlog> {
+        let file = File::open(&self.path)?;
+        let backlog = serde_yaml::from_reader(file);
+        match backlog {
+            Err(_) => Ok(Backlog::new()),
+            Ok(backlog) => Ok(backlog),
+        }
+    }
+
+    async fn save(&self, backlog: Backlog) -> PortsResult<()> {
+        let file = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .truncate(true)
+            .open(&self.path)
+            .unwrap();
+        // let file = File::create(&self.path)?;
+        serde_yaml::to_writer(file, &backlog)?;
+        Ok(())
+    }
+}
+```
+
+On the other hand, Implement `Driver` adaptors.
+
+`RestAdaptor` knows how to save the backlog through
+`ProvideBacklogRepository` and `BacklogRepository` interfaces.
+
+```rust
+#[derive(Debug, Clone)]
+pub struct RestAdaptor {
+    fs: FsBacklogRepository,
+}
+
+impl ProvideBacklogRepository for RestAdaptor {
+    type Repository = FsBacklogRepository;
+
+    fn provide(&self) -> &Self::Repository {
+        &self.fs
+    }
+}
+```
+
+And the adaptor implements how to use the `Driver` interface.
+
+```rust
+impl BacklogUseCase for RestAdaptor {}
+```
+
 ### applications/***
+
+The `applications` crates are entrypoint.
+I defined 2 crates (REST server and command-line). These include `main` function.
+
+`main` function initialize `Adaptor` and start application.
+
+```rust
+#[tokio::main]
+async fn main() {
+    let args = Args::parse();
+    let adaptor = CliAdaptoer::new(args.data());
+    args.run(adaptor).await
+}
+```
 
 ## How to use
 
