@@ -10,6 +10,7 @@ thiserror = "1.0.30"
 backlog-repo = { path = "../../driven/backlog-repo" }
 backlog = { path = "../../../cores/backlog" }
 async-trait = "0.1.52"
+anyhow = "1.0.52"
 
 [dev-dependencies]
 jsonpath-rust = "0.1.4"

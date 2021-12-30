@@ -18,7 +18,7 @@ pub trait BacklogUseCase: ProvideBacklogRepository {
     async fn add_item(&self, cmd: impl AddItemCmd + 'async_trait) -> UseCaseResult<Backlog> {
         let repo = self.provide();
         let mut backlog = repo.get().await?;
-        backlog.add_item(cmd.item());
+        backlog.add_item(cmd.item()?);
         repo.save(backlog.clone()).await?;
         Ok(backlog)
     }
@@ -27,7 +27,7 @@ pub trait BacklogUseCase: ProvideBacklogRepository {
     async fn assign_item(&self, cmd: impl AssignItemCmd + 'async_trait) -> UseCaseResult<Backlog> {
         let repo = self.provide();
         let mut backlog = repo.get().await?;
-        backlog.assign_item(&cmd.id(), cmd.assignee())?;
+        backlog.assign_item(&cmd.id()?, cmd.assignee()?)?;
         repo.save(backlog.clone()).await?;
         Ok(backlog)
     }
@@ -39,7 +39,7 @@ pub trait BacklogUseCase: ProvideBacklogRepository {
     ) -> UseCaseResult<Backlog> {
         let repo = self.provide();
         let mut backlog = repo.get().await?;
-        backlog.estimate_item(&cmd.id(), cmd.point())?;
+        backlog.estimate_item(&cmd.id()?, cmd.point()?)?;
         repo.save(backlog.clone()).await?;
         Ok(backlog)
     }
@@ -48,17 +48,17 @@ pub trait BacklogUseCase: ProvideBacklogRepository {
 pub trait Command: Send {}
 
 pub trait AddItemCmd: Command {
-    fn item(&self) -> Box<dyn BacklogItem>;
+    fn item(&self) -> UseCaseResult<Box<dyn BacklogItem>>;
 }
 
 pub trait AssignItemCmd: Command {
-    fn id(&self) -> Uuid;
-    fn assignee(&self) -> Assignee;
+    fn id(&self) -> UseCaseResult<Uuid>;
+    fn assignee(&self) -> UseCaseResult<Assignee>;
 }
 
 pub trait EstimateItemCmd: Command {
-    fn id(&self) -> Uuid;
-    fn point(&self) -> StoryPoint;
+    fn id(&self) -> UseCaseResult<Uuid>;
+    fn point(&self) -> UseCaseResult<StoryPoint>;
 }
 
 #[cfg(test)]
@@ -90,7 +90,7 @@ mod test_add_item {
         let mut cmd = mock::MockAddItemCmd::new();
         cmd.expect_item().returning(|| {
             let story = Story::new("", None, None);
-            Box::new(story)
+            Ok(Box::new(story))
         });
         mock.add_item(cmd).await.unwrap();
     }
@@ -122,8 +122,9 @@ mod test_estimate_item {
             .returning(|_| Ok(()));
 
         let mut cmd = mock::MockEstimateItemCmd::new();
-        cmd.expect_id().returning(move || item_id);
-        cmd.expect_point().returning(|| StoryPoint::new(1).unwrap());
+        cmd.expect_id().returning(move || Ok(item_id));
+        cmd.expect_point()
+            .returning(|| Ok(StoryPoint::new(1).unwrap()));
 
         assert!(mock.estimate_item(cmd).await.is_ok());
     }
@@ -155,8 +156,9 @@ mod test_assign_item {
             .returning(|_| Ok(()));
 
         let mut cmd = mock::MockAssignItemCmd::new();
-        cmd.expect_id().returning(move || item_id);
-        cmd.expect_assignee().returning(|| Assignee::new("dummy"));
+        cmd.expect_id().returning(move || Ok(item_id));
+        cmd.expect_assignee()
+            .returning(|| Ok(Assignee::new("dummy")));
 
         assert!(mock.assign_item(cmd).await.is_ok());
     }
@@ -191,7 +193,7 @@ pub mod mock {
         impl Command for AddItemCmd {}
 
         impl AddItemCmd for AddItemCmd {
-            fn item(&self) -> Box<dyn BacklogItem>;
+            fn item(&self) -> UseCaseResult<Box<dyn BacklogItem>>;
         }
     }
 
@@ -201,8 +203,8 @@ pub mod mock {
         impl Command for EstimateItemCmd {}
 
         impl EstimateItemCmd for EstimateItemCmd {
-            fn id(&self) -> Uuid;
-            fn point(&self) -> StoryPoint;
+            fn id(&self) -> UseCaseResult<Uuid>;
+            fn point(&self) -> UseCaseResult<StoryPoint>;
         }
     }
 
@@ -212,8 +214,8 @@ pub mod mock {
         impl Command for AssignItemCmd {}
 
         impl AssignItemCmd for AssignItemCmd {
-            fn id(&self) -> Uuid;
-            fn assignee(&self) -> Assignee;
+            fn id(&self) -> UseCaseResult<Uuid>;
+            fn assignee(&self) ->UseCaseResult<Assignee>;
         }
     }
 

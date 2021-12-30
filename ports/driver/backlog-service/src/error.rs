@@ -14,10 +14,16 @@ pub enum UseCaseError {
     Ports(#[from] PortsError),
     #[error("NotFound: {0:?}")]
     NotFound(String),
+    #[error("InvalidValue: {0}")]
+    InvalidValue(String),
 }
 
 impl UseCaseError {
     pub fn not_found(msg: impl Into<String>) -> Self {
         Self::NotFound(msg.into())
+    }
+
+    pub fn invalid_value(msg: impl Into<String>) -> Self {
+        Self::InvalidValue(msg.into())
     }
 }

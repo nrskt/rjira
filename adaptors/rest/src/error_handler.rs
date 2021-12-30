@@ -14,10 +14,11 @@ impl From<UseCaseError> for RestError {
 
 impl IntoResponse for RestError {
     fn into_response(self) -> axum::response::Response {
-        let (status, msg) = match self.0 {
-            UseCaseError::Ports(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg.to_string()),
-            UseCaseError::Backlog(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg.to_string()),
-            UseCaseError::NotFound(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
+        let (status, msg) = match &self.0 {
+            UseCaseError::Ports(_) => (StatusCode::INTERNAL_SERVER_ERROR, self.0.to_string()),
+            UseCaseError::Backlog(_) => (StatusCode::INTERNAL_SERVER_ERROR, self.0.to_string()),
+            UseCaseError::NotFound(_) => (StatusCode::INTERNAL_SERVER_ERROR, self.0.to_string()),
+            UseCaseError::InvalidValue(_) => (StatusCode::BAD_REQUEST, self.0.to_string()),
         };
         let body = Json(json!({ "error": msg }));
         (status, body).into_response()
