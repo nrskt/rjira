@@ -1,4 +1,4 @@
-use backlog::{Assignee, BacklogItem, Story, StoryPoint, Task, Uuid};
+use backlog::{Assignee, Uuid};
 use backlog_service::{AssignItemCmd, BacklogUseCase, Command};
 
 use super::CliAdaptoer;

@@ -17,7 +17,7 @@ impl IntoResponse for RestError {
         let (status, msg) = match self.0 {
             UseCaseError::Ports(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg.to_string()),
             UseCaseError::Backlog(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg.to_string()),
-            UseCaseError::NotFound(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg.to_string()),
+            UseCaseError::NotFound(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
         };
         let body = Json(json!({ "error": msg }));
         (status, body).into_response()

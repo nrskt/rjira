@@ -23,6 +23,12 @@ impl Backlog {
     }
 }
 
+impl Default for Backlog {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Entity for Backlog {
     fn id(&self) -> Uuid {
         self.id
