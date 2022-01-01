@@ -1,5 +1,5 @@
 use backlog::{StoryPoint, Uuid};
-use backlog_service::{BacklogUseCase, Command, EstimateItemCmd};
+use backlog_service::{BacklogUseCase, Command, EstimateItemCmd, UseCaseError, UseCaseResult};
 
 use super::CliAdaptoer;
 
@@ -22,10 +22,10 @@ pub struct EstimateItemCliCmd {
 impl Command for EstimateItemCliCmd {}
 
 impl EstimateItemCmd for EstimateItemCliCmd {
-    fn id(&self) -> Uuid {
-        self.id
+    fn id(&self) -> UseCaseResult<Uuid> {
+        Ok(self.id)
     }
-    fn point(&self) -> StoryPoint {
-        StoryPoint::new(self.point).unwrap()
+    fn point(&self) -> UseCaseResult<StoryPoint> {
+        StoryPoint::new(self.point).map_err(|err| UseCaseError::invalid_value(err.to_string()))
     }
 }

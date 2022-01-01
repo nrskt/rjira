@@ -1,5 +1,5 @@
 use backlog::{Assignee, BacklogItem, Story, StoryPoint, Task};
-use backlog_service::{AddItemCmd, BacklogUseCase, Command};
+use backlog_service::{AddItemCmd, BacklogUseCase, Command, UseCaseResult};
 
 use super::CliAdaptoer;
 
@@ -24,7 +24,7 @@ pub struct AddItemCliCmd {
 impl Command for AddItemCliCmd {}
 
 impl AddItemCmd for AddItemCliCmd {
-    fn item(&self) -> Box<dyn backlog::BacklogItem> {
+    fn item(&self) -> UseCaseResult<Box<dyn backlog::BacklogItem>> {
         let point = self.point.map(StoryPoint::new).transpose().unwrap();
         let assignee = self.assignee.as_ref().map(|v| Assignee::new(v));
         let item: Box<dyn BacklogItem> = match self.item_type.as_str() {
@@ -32,6 +32,6 @@ impl AddItemCmd for AddItemCliCmd {
             "Task" => Box::new(Task::new(&self.title, point, assignee)),
             _ => todo!(),
         };
-        item
+        Ok(item)
     }
 }

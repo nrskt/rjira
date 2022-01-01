@@ -55,9 +55,7 @@ impl EstimateItemCmd for EstimateRequest {
     }
 
     fn point(&self) -> UseCaseResult<StoryPoint> {
-        println!("error_handling test");
-        Ok(StoryPoint::new(self.point)
-            .map_err(|err| UseCaseError::invalid_value(err.to_string()))?)
+        StoryPoint::new(self.point).map_err(|err| UseCaseError::invalid_value(err.to_string()))
     }
 }
 
