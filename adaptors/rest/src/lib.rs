@@ -1,7 +1,9 @@
 mod add_item;
+mod backlog;
 mod error_handler;
 mod update_item;
 
+pub use crate::backlog::backlog_handler;
 pub use add_item::add_item_handler;
 pub use axum;
 pub use error_handler::{RestError, RestResult};

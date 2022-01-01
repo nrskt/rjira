@@ -2,10 +2,10 @@ use rest::{
     add_item_handler,
     axum::{
         self,
-        routing::{post, put},
+        routing::{get, post, put},
         AddExtensionLayer, Router,
     },
-    update_item_handler, RestAdaptor,
+    backlog_handler, update_item_handler, RestAdaptor,
 };
 use std::net::SocketAddr;
 
@@ -13,6 +13,7 @@ use std::net::SocketAddr;
 async fn main() {
     let adaptors = RestAdaptor::new("./data.yaml");
     let app = Router::new()
+        .route("/backlog", get(backlog_handler))
         .route("/backlog/items", post(add_item_handler))
         .route("/backlog/items/:item_id", put(update_item_handler))
         .layer(AddExtensionLayer::new(adaptors));
