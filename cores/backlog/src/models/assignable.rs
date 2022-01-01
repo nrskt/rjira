@@ -80,6 +80,14 @@ mod test_assignable_from_collection {
         type Key = Uuid;
         type Ret = Box<dyn BacklogItem>;
 
+        fn len(&self) -> usize {
+            todo!()
+        }
+
+        fn is_empty(&self) -> bool {
+            todo!()
+        }
+
         fn find_by_id_mut(&mut self, _key: &Self::Key) -> Option<&mut Self::Ret> {
             None
         }
@@ -92,6 +100,14 @@ mod test_assignable_from_collection {
     impl FindFromCollection for ExpectReturnSome {
         type Key = Uuid;
         type Ret = Box<dyn BacklogItem>;
+
+        fn len(&self) -> usize {
+            todo!()
+        }
+
+        fn is_empty(&self) -> bool {
+            todo!()
+        }
 
         fn find_by_id_mut(&mut self, _key: &Self::Key) -> Option<&mut Self::Ret> {
             self.0.get_mut(0)
