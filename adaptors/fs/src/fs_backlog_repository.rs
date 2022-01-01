@@ -1,4 +1,4 @@
-use std::fs::{File, OpenOptions};
+use std::fs::OpenOptions;
 use std::path::PathBuf;
 
 use backlog::Backlog;
@@ -18,7 +18,12 @@ impl FsBacklogRepository {
 #[async_trait::async_trait]
 impl BacklogRepository for FsBacklogRepository {
     async fn get(&self) -> PortsResult<Backlog> {
-        let file = File::open(&self.path)?;
+        let file = OpenOptions::new()
+            .create(true)
+            // If I use .write(false), I get the error that mean "InvalidInput".
+            .write(true)
+            .truncate(true)
+            .open(&self.path)?;
         let backlog = serde_yaml::from_reader(file);
         match backlog {
             Err(_) => Ok(Backlog::new()),
@@ -31,9 +36,7 @@ impl BacklogRepository for FsBacklogRepository {
             .write(true)
             .create(true)
             .truncate(true)
-            .open(&self.path)
-            .unwrap();
-        // let file = File::create(&self.path)?;
+            .open(&self.path)?;
         serde_yaml::to_writer(file, &backlog)?;
         Ok(())
     }
