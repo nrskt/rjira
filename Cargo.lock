@@ -12,12 +12,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "anyhow"
-version = "1.0.52"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "84450d0b4a8bd1ba4144ce8ce718fbc5d071358b1e5384bace6536b3d1f2d5b3"
-
-[[package]]
 name = "async-trait"
 version = "0.1.52"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -94,7 +88,6 @@ dependencies = [
 name = "backlog"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "dyn-clone",
  "erased-serde",
  "getset",
@@ -122,7 +115,6 @@ dependencies = [
 name = "backlog-service"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "async-trait",
  "backlog",
  "backlog-repo",
@@ -883,7 +875,6 @@ checksum = "f497285884f3fcff424ffc933e56d7cbca511def0c9831a7f9b5f6153e3cc89b"
 name = "rest"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "axum",
  "backlog",
  "backlog-repo",
