@@ -1,9 +1,11 @@
 mod add_item;
 mod assign_item;
 mod backlog;
+mod error_handler;
 mod estimate_item;
 
 pub use clap;
+pub use error_handler::error_handler;
 
 use std::path::PathBuf;
 

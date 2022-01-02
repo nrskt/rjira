@@ -1,16 +1,10 @@
 use backlog::{StoryPoint, Uuid};
 use backlog_service::{BacklogUseCase, Command, EstimateItemCmd, UseCaseError, UseCaseResult};
 
-use super::CliAdaptoer;
+use super::{error_handler, CliAdaptoer};
 
 pub async fn estimate_item_handler(ctx: CliAdaptoer, cmd: EstimateItemCliCmd) {
-    match ctx.estimate_item(cmd).await {
-        Err(e) => eprintln!("fail: {}", e),
-        Ok(backlog) => {
-            println!("success");
-            println!("{:?}", backlog)
-        }
-    }
+    error_handler(|| ctx.estimate_item(cmd)).await
 }
 
 #[derive(Clone, Debug, clap::Parser)]

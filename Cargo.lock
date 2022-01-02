@@ -12,6 +12,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "anyhow"
+version = "1.0.52"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "84450d0b4a8bd1ba4144ce8ce718fbc5d071358b1e5384bace6536b3d1f2d5b3"
+
+[[package]]
 name = "async-trait"
 version = "0.1.52"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -115,9 +121,11 @@ dependencies = [
 name = "backlog-service"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "async-trait",
  "backlog",
  "backlog-repo",
+ "eyre",
  "jsonpath-rust",
  "mockall",
  "serde",
@@ -215,6 +223,7 @@ dependencies = [
  "backlog-repo",
  "backlog-service",
  "clap",
+ "eyre",
  "fs",
 ]
 
@@ -268,6 +277,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "44a5d80251b806a14cd3e4e1a582e912d5cbf6904ab19fdefbd7a56adca088e1"
 dependencies = [
  "serde",
+]
+
+[[package]]
+name = "eyre"
+version = "0.6.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "221239d1d5ea86bf5d6f91c9d6bc3646ffe471b08ff9b0f91c44f115ac969d2b"
+dependencies = [
+ "indenter",
+ "once_cell",
 ]
 
 [[package]]
@@ -485,6 +504,12 @@ dependencies = [
  "tracing",
  "want",
 ]
+
+[[package]]
+name = "indenter"
+version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ce23b50ad8242c51a442f3ff322d56b02f08852c77e4c0b4d3fd684abc89c683"
 
 [[package]]
 name = "indexmap"
@@ -879,6 +904,7 @@ dependencies = [
  "backlog",
  "backlog-repo",
  "backlog-service",
+ "eyre",
  "fs",
  "serde",
  "serde_json",

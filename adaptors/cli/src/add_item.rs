@@ -1,16 +1,10 @@
 use backlog::{Assignee, BacklogItem, Story, StoryPoint, Task};
 use backlog_service::{AddItemCmd, BacklogUseCase, Command, UseCaseResult};
 
-use super::CliAdaptoer;
+use super::{error_handler, CliAdaptoer};
 
 pub async fn add_item_handler(ctx: CliAdaptoer, cmd: AddItemCliCmd) {
-    match ctx.add_item(cmd).await {
-        Err(e) => eprintln!("fail: {}", e),
-        Ok(backlog) => {
-            println!("success");
-            println!("{:?}", backlog)
-        }
-    }
+    error_handler(|| ctx.add_item(cmd)).await
 }
 
 #[derive(Clone, Debug, clap::Parser)]

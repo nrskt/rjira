@@ -1,16 +1,10 @@
 use backlog::{Assignee, Uuid};
 use backlog_service::{AssignItemCmd, BacklogUseCase, Command, UseCaseResult};
 
-use super::CliAdaptoer;
+use super::{error_handler, CliAdaptoer};
 
 pub async fn assign_item_handler(ctx: CliAdaptoer, cmd: AssignItemCliCmd) {
-    match ctx.assign_item(cmd).await {
-        Err(e) => eprintln!("fail: {}", e),
-        Ok(backlog) => {
-            println!("success");
-            println!("{:?}", backlog)
-        }
-    }
+    error_handler(|| ctx.assign_item(cmd)).await
 }
 
 #[derive(Clone, Debug, clap::Parser)]
