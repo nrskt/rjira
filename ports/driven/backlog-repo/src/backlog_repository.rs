@@ -1,6 +1,6 @@
 use backlog::Backlog;
 
-use crate::PortsResult;
+use crate::BacklogRepositoryResult;
 
 pub trait ProvideBacklogRepository {
     type Repository: BacklogRepository + Send + Sync;
@@ -13,8 +13,8 @@ pub trait BacklogRepository {
     /// Get the specific backlog.
     ///
     /// If backlog does not find, return the error.
-    async fn get(&self) -> PortsResult<Backlog>;
+    async fn get(&self) -> BacklogRepositoryResult<Backlog>;
 
     /// Save the specific backlog.
-    async fn save(&self, backlog: Backlog) -> PortsResult<()>;
+    async fn save(&self, backlog: Backlog) -> BacklogRepositoryResult<()>;
 }

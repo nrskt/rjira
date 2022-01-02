@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 
 use backlog::BacklogError;
-use backlog_repo::PortsError;
+use backlog_repo::BacklogRepositoryError;
 use thiserror::Error;
 
 pub type UseCaseResult<T> = Result<T, UseCaseError>;
@@ -10,8 +10,8 @@ pub type UseCaseResult<T> = Result<T, UseCaseError>;
 pub enum UseCaseError {
     #[error("Domain BacklogError: {0}")]
     Backlog(#[from] BacklogError),
-    #[error("PortsError: {0}")]
-    Ports(#[from] PortsError),
+    #[error("UseCaseError: {0}")]
+    BacklogRepository(#[from] BacklogRepositoryError),
     #[error("NotFound: {0:?}")]
     NotFound(String),
     #[error("InvalidValue: {0}")]

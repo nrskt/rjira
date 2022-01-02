@@ -2,30 +2,20 @@ use std::fmt::Debug;
 
 use thiserror::Error;
 
-pub type PortsResult<T> = Result<T, PortsError>;
+pub type BacklogRepositoryResult<T> = Result<T, BacklogRepositoryError>;
 
 #[derive(Debug, Error)]
-pub enum PortsError {
-    #[error("NotFound: {0:?}")]
+pub enum BacklogRepositoryError {
+    #[error("BacklogRepositoryError: not found the resource, {0}")]
     NotFound(String),
-    #[error("InternalError: {0}")]
-    InternalError(String),
+    #[error("BacklogRepositoryError: IO occurred something, {0}")]
+    Io(#[from] std::io::Error),
+    #[error("BacklogRepositoryError: serialize/deserialize yaml occurred something, {0}")]
+    Yaml(#[from] serde_yaml::Error),
 }
 
-impl PortsError {
+impl BacklogRepositoryError {
     pub fn not_found(msg: impl Into<String>) -> Self {
         Self::NotFound(msg.into())
-    }
-}
-
-impl From<serde_yaml::Error> for PortsError {
-    fn from(err: serde_yaml::Error) -> Self {
-        Self::InternalError(err.to_string())
-    }
-}
-
-impl From<std::io::Error> for PortsError {
-    fn from(err: std::io::Error) -> Self {
-        Self::InternalError(err.to_string())
     }
 }

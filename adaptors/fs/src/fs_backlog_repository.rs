@@ -2,7 +2,7 @@ use std::fs::OpenOptions;
 use std::path::PathBuf;
 
 use backlog::Backlog;
-use backlog_repo::{BacklogRepository, PortsResult};
+use backlog_repo::{BacklogRepository, BacklogRepositoryResult};
 
 #[derive(Debug, Clone)]
 pub struct FsBacklogRepository {
@@ -17,7 +17,7 @@ impl FsBacklogRepository {
 
 #[async_trait::async_trait]
 impl BacklogRepository for FsBacklogRepository {
-    async fn get(&self) -> PortsResult<Backlog> {
+    async fn get(&self) -> BacklogRepositoryResult<Backlog> {
         let file = OpenOptions::new()
             .create(true)
             // If I use .write(false), I get the error that mean "InvalidInput".
@@ -31,7 +31,7 @@ impl BacklogRepository for FsBacklogRepository {
         }
     }
 
-    async fn save(&self, backlog: Backlog) -> PortsResult<()> {
+    async fn save(&self, backlog: Backlog) -> BacklogRepositoryResult<()> {
         let file = OpenOptions::new()
             .write(true)
             .create(true)
