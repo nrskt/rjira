@@ -22,8 +22,9 @@ impl BacklogRepository for FsBacklogRepository {
             .create(true)
             // If I use .write(false), I get the error that mean "InvalidInput".
             .write(true)
-            .truncate(true)
+            .truncate(false)
             .open(&self.path)?;
+        let file = std::fs::File::open(&self.path)?;
         let backlog = serde_yaml::from_reader(file);
         match backlog {
             Err(_) => Ok(Backlog::new()),

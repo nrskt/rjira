@@ -17,10 +17,11 @@ pub async fn update_item_handler(
 ) -> RestResult<Json<Backlog>> {
     if let Some(point) = payload.point {
         let req = EstimateRequest { id: item_id, point };
-        ctx.estimate_item(req)
+        return ctx
+            .estimate_item(req)
             .await
             .map(Json)
-            .map_err(RestError::from)?;
+            .map_err(RestError::from);
     }
 
     if let Some(assignee) = payload.assignee {
@@ -28,10 +29,11 @@ pub async fn update_item_handler(
             id: item_id,
             assignee,
         };
-        ctx.assign_item(req)
+        return ctx
+            .assign_item(req)
             .await
             .map(Json)
-            .map_err(RestError::from)?;
+            .map_err(RestError::from);
     }
     ctx.get_backlog().await.map(Json).map_err(RestError::from)
 }

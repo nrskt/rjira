@@ -3,30 +3,33 @@ use backlog::{
     StoryPoint, Uuid,
 };
 use backlog_repo::{BacklogRepository, ProvideBacklogRepository};
+use eyre::{self, WrapErr};
 
-use crate::UseCaseResult;
+use crate::{BusinessLogicError, IncommingResult, OutcommingError, UseCaseResult};
 
 #[async_trait::async_trait]
 pub trait BacklogUseCase: ProvideBacklogRepository {
-    async fn get_backlog(&self) -> UseCaseResult<Backlog> {
+    async fn get_backlog(&self) -> eyre::Result<Backlog> {
         let repo = self.provide();
-        let backlog = repo.get().await?;
+        let backlog = repo.get().await.map_err(OutcommingError::from)?;
         Ok(backlog)
     }
 
     /// Add item to backlog
-    async fn add_item(&self, cmd: impl AddItemCmd + 'async_trait) -> UseCaseResult<Backlog> {
+    async fn add_item(&self, cmd: impl AddItemCmd + 'async_trait) -> eyre::Result<Backlog> {
         let repo = self.provide();
-        let mut backlog = repo.get().await?;
+        let mut backlog = repo.get().await.map_err(OutcommingError::from)?;
         backlog.add_item(cmd.item()?);
-        repo.save(backlog.clone()).await?;
+        repo.save(backlog.clone())
+            .await
+            .map_err(OutcommingError::from)?;
         Ok(backlog)
     }
 
     /// Assign the specific item to someone.
-    async fn assign_item(&self, cmd: impl AssignItemCmd + 'async_trait) -> UseCaseResult<Backlog> {
+    async fn assign_item(&self, cmd: impl AssignItemCmd + 'async_trait) -> eyre::Result<Backlog> {
         let repo = self.provide();
-        let mut backlog = repo.get().await?;
+        let mut backlog = repo.get().await.map_err(OutcommingError::from)?;
         backlog.assign_item(&cmd.id()?, cmd.assignee()?)?;
         repo.save(backlog.clone()).await?;
         Ok(backlog)
@@ -36,11 +39,15 @@ pub trait BacklogUseCase: ProvideBacklogRepository {
     async fn estimate_item(
         &self,
         cmd: impl EstimateItemCmd + 'async_trait,
-    ) -> UseCaseResult<Backlog> {
+    ) -> eyre::Result<Backlog> {
         let repo = self.provide();
-        let mut backlog = repo.get().await?;
-        backlog.estimate_item(&cmd.id()?, cmd.point()?)?;
-        repo.save(backlog.clone()).await?;
+        let mut backlog = repo.get().await.map_err(OutcommingError::from)?;
+        backlog
+            .estimate_item(&cmd.id()?, cmd.point()?)
+            .map_err(BusinessLogicError::from)?;
+        repo.save(backlog.clone())
+            .await
+            .map_err(OutcommingError::from)?;
         Ok(backlog)
     }
 }
@@ -48,17 +55,17 @@ pub trait BacklogUseCase: ProvideBacklogRepository {
 pub trait Command: Send {}
 
 pub trait AddItemCmd: Command {
-    fn item(&self) -> UseCaseResult<Box<dyn BacklogItem>>;
+    fn item(&self) -> IncommingResult<Box<dyn BacklogItem>>;
 }
 
 pub trait AssignItemCmd: Command {
     fn id(&self) -> UseCaseResult<Uuid>;
-    fn assignee(&self) -> UseCaseResult<Assignee>;
+    fn assignee(&self) -> IncommingResult<Assignee>;
 }
 
 pub trait EstimateItemCmd: Command {
     fn id(&self) -> UseCaseResult<Uuid>;
-    fn point(&self) -> UseCaseResult<StoryPoint>;
+    fn point(&self) -> IncommingResult<StoryPoint>;
 }
 
 #[cfg(test)]
@@ -168,7 +175,7 @@ mod test_assign_item {
 pub mod mock {
     use super::*;
     use async_trait::async_trait;
-    use backlog_repo::PortsResult;
+    use backlog_repo::BacklogRepositoryResult;
     use jsonpath_rust::*;
     use mockall::mock;
 
@@ -182,8 +189,8 @@ pub mod mock {
 
         #[async_trait]
         impl BacklogRepository for Test {
-            async fn get(&self) -> PortsResult<Backlog>;
-            async fn save(&self, backlog: Backlog) -> PortsResult<()>;
+            async fn get(&self) -> BacklogRepositoryResult<Backlog>;
+            async fn save(&self, backlog: Backlog) -> BacklogRepositoryResult<()>;
         }
     }
 
@@ -193,7 +200,7 @@ pub mod mock {
         impl Command for AddItemCmd {}
 
         impl AddItemCmd for AddItemCmd {
-            fn item(&self) -> UseCaseResult<Box<dyn BacklogItem>>;
+            fn item(&self) -> IncommingResult<Box<dyn BacklogItem>>;
         }
     }
 
@@ -204,7 +211,7 @@ pub mod mock {
 
         impl EstimateItemCmd for EstimateItemCmd {
             fn id(&self) -> UseCaseResult<Uuid>;
-            fn point(&self) -> UseCaseResult<StoryPoint>;
+            fn point(&self) -> IncommingResult<StoryPoint>;
         }
     }
 
@@ -215,7 +222,7 @@ pub mod mock {
 
         impl AssignItemCmd for AssignItemCmd {
             fn id(&self) -> UseCaseResult<Uuid>;
-            fn assignee(&self) ->UseCaseResult<Assignee>;
+            fn assignee(&self) ->IncommingResult<Assignee>;
         }
     }
 
