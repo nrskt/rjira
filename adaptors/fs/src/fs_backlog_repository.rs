@@ -18,7 +18,7 @@ impl FsBacklogRepository {
 #[async_trait::async_trait]
 impl BacklogRepository for FsBacklogRepository {
     async fn get(&self) -> BacklogRepositoryResult<Backlog> {
-        let file = OpenOptions::new()
+        OpenOptions::new()
             .create(true)
             // If I use .write(false), I get the error that mean "InvalidInput".
             .write(true)

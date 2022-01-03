@@ -1,5 +1,7 @@
 use backlog::{StoryPoint, Uuid};
-use backlog_service::{BacklogUseCase, Command, EstimateItemCmd, UseCaseError, UseCaseResult};
+use backlog_service::{
+    BacklogUseCase, Command, EstimateItemCmd, IncommingError, IncommingResult, UseCaseResult,
+};
 
 use super::{error_handler, CliAdaptoer};
 
@@ -19,7 +21,7 @@ impl EstimateItemCmd for EstimateItemCliCmd {
     fn id(&self) -> UseCaseResult<Uuid> {
         Ok(self.id)
     }
-    fn point(&self) -> UseCaseResult<StoryPoint> {
-        StoryPoint::new(self.point).map_err(|err| UseCaseError::invalid_value(err.to_string()))
+    fn point(&self) -> IncommingResult<StoryPoint> {
+        StoryPoint::new(self.point).map_err(|err| IncommingError::invalid_value("invalid", err.to_string()))
     }
 }

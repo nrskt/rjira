@@ -3,7 +3,6 @@ use backlog::{
     StoryPoint, Uuid,
 };
 use backlog_repo::{BacklogRepository, ProvideBacklogRepository};
-use eyre::{self, WrapErr};
 
 use crate::{BusinessLogicError, IncommingResult, OutcommingError, UseCaseResult};
 

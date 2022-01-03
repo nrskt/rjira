@@ -4,7 +4,8 @@ use axum::{
 };
 use backlog::{Assignee, Backlog, StoryPoint, Uuid};
 use backlog_service::{
-    AssignItemCmd, BacklogUseCase, Command, EstimateItemCmd, UseCaseError, UseCaseResult,
+    AssignItemCmd, BacklogUseCase, Command, EstimateItemCmd, IncommingError, IncommingResult,
+    UseCaseResult,
 };
 use serde::Deserialize;
 
@@ -56,8 +57,8 @@ impl EstimateItemCmd for EstimateRequest {
         Ok(self.id)
     }
 
-    fn point(&self) -> UseCaseResult<StoryPoint> {
-        StoryPoint::new(self.point).map_err(|err| UseCaseError::invalid_value(err.to_string()))
+    fn point(&self) -> IncommingResult<StoryPoint> {
+        StoryPoint::new(self.point).map_err(|err| IncommingError::invalid_value("invalid", err.to_string()))
     }
 }
 
@@ -73,7 +74,7 @@ impl AssignItemCmd for AssignRequest {
         Ok(self.id)
     }
 
-    fn assignee(&self) -> UseCaseResult<Assignee> {
+    fn assignee(&self) -> IncommingResult<Assignee> {
         Ok(Assignee::new(&self.assignee))
     }
 }
