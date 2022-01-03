@@ -22,6 +22,7 @@ impl EstimateItemCmd for EstimateItemCliCmd {
         Ok(self.id)
     }
     fn point(&self) -> IncommingResult<StoryPoint> {
-        StoryPoint::new(self.point).map_err(|err| IncommingError::invalid_value("invalid", err.to_string()))
+        StoryPoint::new(self.point)
+            .map_err(|err| IncommingError::invalid_value("StoryPoint", err.to_string()))
     }
 }

@@ -1,5 +1,5 @@
 use backlog::{Assignee, BacklogItem, Story, StoryPoint, Task};
-use backlog_service::{AddItemCmd, BacklogUseCase, Command, IncommingResult};
+use backlog_service::{AddItemCmd, BacklogUseCase, Command, IncommingError, IncommingResult};
 
 use super::{error_handler, CliAdaptoer};
 
@@ -24,7 +24,15 @@ impl AddItemCmd for AddItemCliCmd {
         let item: Box<dyn BacklogItem> = match self.item_type.as_str() {
             "Story" => Box::new(Story::new(&self.title, point, assignee)),
             "Task" => Box::new(Task::new(&self.title, point, assignee)),
-            _ => todo!(),
+            _ => {
+                return Err(IncommingError::invalid_value(
+                    "item_type",
+                    format!(
+                        "the field does not take the value, {}",
+                        self.item_type.as_str()
+                    ),
+                ))
+            }
         };
         Ok(item)
     }

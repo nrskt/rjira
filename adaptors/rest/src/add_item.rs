@@ -34,8 +34,8 @@ impl AddItemCmd for AddItemRequest {
             "Task" => Box::new(Task::new(&self.title, point, assignee)),
             _ => {
                 return Err(IncommingError::invalid_value(
-                    std::any::type_name::<Box<dyn BacklogItem>>(),
-                    format!("item_type does not use the value, {}", self.item_type),
+                    "item_type",
+                    format!("the field does not take the value, {}", self.item_type),
                 ))
             }
         };
