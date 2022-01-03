@@ -1,6 +1,4 @@
-use axum::{http::StatusCode, response::IntoResponse, Json};
-use backlog_service::UseCaseError;
-use serde_json::json;
+use axum::{http::StatusCode, response::IntoResponse};
 
 pub type RestResult<T> = Result<T, RestError>;
 
