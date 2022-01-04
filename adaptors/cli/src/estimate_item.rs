@@ -1,7 +1,5 @@
 use backlog::{StoryPoint, Uuid};
-use backlog_service::{
-    BacklogUseCase, Command, EstimateItemCmd, IncommingError, IncommingResult, UseCaseResult,
-};
+use backlog_service::{BacklogUseCase, Command, EstimateItemCmd, IncommingError, IncommingResult};
 
 use super::{error_handler, CliAdaptoer};
 
@@ -18,7 +16,7 @@ pub struct EstimateItemCliCmd {
 impl Command for EstimateItemCliCmd {}
 
 impl EstimateItemCmd for EstimateItemCliCmd {
-    fn id(&self) -> UseCaseResult<Uuid> {
+    fn id(&self) -> IncommingResult<Uuid> {
         Ok(self.id)
     }
     fn point(&self) -> IncommingResult<StoryPoint> {

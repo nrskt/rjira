@@ -1,5 +1,5 @@
 use backlog::{Assignee, Uuid};
-use backlog_service::{AssignItemCmd, BacklogUseCase, Command, UseCaseResult, IncommingResult};
+use backlog_service::{AssignItemCmd, BacklogUseCase, Command, IncommingResult};
 
 use super::{error_handler, CliAdaptoer};
 
@@ -16,7 +16,7 @@ pub struct AssignItemCliCmd {
 impl Command for AssignItemCliCmd {}
 
 impl AssignItemCmd for AssignItemCliCmd {
-    fn id(&self) -> UseCaseResult<Uuid> {
+    fn id(&self) -> IncommingResult<Uuid> {
         Ok(self.id)
     }
     fn assignee(&self) -> IncommingResult<Assignee> {
