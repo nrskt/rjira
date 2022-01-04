@@ -4,20 +4,7 @@ use backlog::BacklogError;
 use backlog_repo::BacklogRepositoryError;
 use thiserror::Error;
 
-pub type UseCaseResult<T> = Result<T, UseCaseError>;
-
 pub type IncommingResult<T> = Result<T, IncommingError>;
-
-#[derive(Debug, Error)]
-pub enum UseCaseError {
-    #[error("IncommingError: {0:?}")]
-    Incomming(#[from] IncommingError),
-    #[error("OutcommingError: {0:?}")]
-    Outcomming(#[from] OutcommingError),
-    #[error("BusinessLogicError: {0:?}")]
-    BusinessLogic(#[from] BusinessLogicError),
-    /////////////////
-}
 
 #[derive(Debug, Error)]
 pub enum IncommingError {

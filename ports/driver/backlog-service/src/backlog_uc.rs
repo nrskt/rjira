@@ -6,7 +6,7 @@ use backlog_repo::{BacklogRepository, ProvideBacklogRepository};
 use eyre::WrapErr;
 use eyre_ext::WrapErrExt;
 
-use crate::{BusinessLogicError, IncommingResult, OutcommingError, UseCaseResult};
+use crate::{BusinessLogicError, IncommingResult, OutcommingError};
 
 #[async_trait::async_trait]
 pub trait BacklogUseCase: ProvideBacklogRepository {
@@ -64,12 +64,12 @@ pub trait AddItemCmd: Command {
 }
 
 pub trait AssignItemCmd: Command {
-    fn id(&self) -> UseCaseResult<Uuid>;
+    fn id(&self) -> IncommingResult<Uuid>;
     fn assignee(&self) -> IncommingResult<Assignee>;
 }
 
 pub trait EstimateItemCmd: Command {
-    fn id(&self) -> UseCaseResult<Uuid>;
+    fn id(&self) -> IncommingResult<Uuid>;
     fn point(&self) -> IncommingResult<StoryPoint>;
 }
 
@@ -215,7 +215,7 @@ pub mod mock {
         impl Command for EstimateItemCmd {}
 
         impl EstimateItemCmd for EstimateItemCmd {
-            fn id(&self) -> UseCaseResult<Uuid>;
+            fn id(&self) -> IncommingResult<Uuid>;
             fn point(&self) -> IncommingResult<StoryPoint>;
         }
     }
@@ -226,7 +226,7 @@ pub mod mock {
         impl Command for AssignItemCmd {}
 
         impl AssignItemCmd for AssignItemCmd {
-            fn id(&self) -> UseCaseResult<Uuid>;
+            fn id(&self) -> IncommingResult<Uuid>;
             fn assignee(&self) ->IncommingResult<Assignee>;
         }
     }
