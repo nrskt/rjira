@@ -3,34 +3,36 @@ use backlog::{
     StoryPoint, Uuid,
 };
 use backlog_repo::{BacklogRepository, ProvideBacklogRepository};
+use eyre::WrapErr;
+use eyre_ext::WrapErrExt;
 
-use crate::{BusinessLogicError, IncommingResult, OutcommingError, UseCaseResult};
+use crate::{BusinessLogicError, IncommingResult, OutcommingError};
 
 #[async_trait::async_trait]
 pub trait BacklogUseCase: ProvideBacklogRepository {
     async fn get_backlog(&self) -> eyre::Result<Backlog> {
         let repo = self.provide();
-        let backlog = repo.get().await.map_err(OutcommingError::from)?;
+        let backlog = repo.get().await.wrap::<OutcommingError>()?;
         Ok(backlog)
     }
 
     /// Add item to backlog
     async fn add_item(&self, cmd: impl AddItemCmd + 'async_trait) -> eyre::Result<Backlog> {
         let repo = self.provide();
-        let mut backlog = repo.get().await.map_err(OutcommingError::from)?;
+        let mut backlog = repo.get().await.wrap::<OutcommingError>()?;
         backlog.add_item(cmd.item()?);
-        repo.save(backlog.clone())
-            .await
-            .map_err(OutcommingError::from)?;
+        repo.save(backlog.clone()).await.wrap::<OutcommingError>()?;
         Ok(backlog)
     }
 
     /// Assign the specific item to someone.
     async fn assign_item(&self, cmd: impl AssignItemCmd + 'async_trait) -> eyre::Result<Backlog> {
         let repo = self.provide();
-        let mut backlog = repo.get().await.map_err(OutcommingError::from)?;
-        backlog.assign_item(&cmd.id()?, cmd.assignee()?)?;
-        repo.save(backlog.clone()).await?;
+        let mut backlog = repo.get().await.wrap::<OutcommingError>()?;
+        backlog
+            .assign_item(&cmd.id()?, cmd.assignee()?)
+            .wrap::<BusinessLogicError>()?;
+        repo.save(backlog.clone()).await.wrap::<OutcommingError>()?;
         Ok(backlog)
     }
 
@@ -39,14 +41,18 @@ pub trait BacklogUseCase: ProvideBacklogRepository {
         &self,
         cmd: impl EstimateItemCmd + 'async_trait,
     ) -> eyre::Result<Backlog> {
+        let id = cmd.id().wrap_err("fail to get item id")?;
+        let point = cmd.point().wrap_err("fail to get story point")?;
+
         let repo = self.provide();
-        let mut backlog = repo.get().await.map_err(OutcommingError::from)?;
-        backlog
-            .estimate_item(&cmd.id()?, cmd.point()?)
-            .map_err(BusinessLogicError::from)?;
-        repo.save(backlog.clone())
+        let mut backlog = repo
+            .get()
             .await
-            .map_err(OutcommingError::from)?;
+            .wrap_msg::<OutcommingError>("fail to get backlog")?;
+        backlog
+            .estimate_item(&id, point)
+            .wrap::<BusinessLogicError>()?;
+        repo.save(backlog.clone()).await.wrap::<OutcommingError>()?;
         Ok(backlog)
     }
 }
@@ -58,12 +64,12 @@ pub trait AddItemCmd: Command {
 }
 
 pub trait AssignItemCmd: Command {
-    fn id(&self) -> UseCaseResult<Uuid>;
+    fn id(&self) -> IncommingResult<Uuid>;
     fn assignee(&self) -> IncommingResult<Assignee>;
 }
 
 pub trait EstimateItemCmd: Command {
-    fn id(&self) -> UseCaseResult<Uuid>;
+    fn id(&self) -> IncommingResult<Uuid>;
     fn point(&self) -> IncommingResult<StoryPoint>;
 }
 
@@ -209,7 +215,7 @@ pub mod mock {
         impl Command for EstimateItemCmd {}
 
         impl EstimateItemCmd for EstimateItemCmd {
-            fn id(&self) -> UseCaseResult<Uuid>;
+            fn id(&self) -> IncommingResult<Uuid>;
             fn point(&self) -> IncommingResult<StoryPoint>;
         }
     }
@@ -220,7 +226,7 @@ pub mod mock {
         impl Command for AssignItemCmd {}
 
         impl AssignItemCmd for AssignItemCmd {
-            fn id(&self) -> UseCaseResult<Uuid>;
+            fn id(&self) -> IncommingResult<Uuid>;
             fn assignee(&self) ->IncommingResult<Assignee>;
         }
     }

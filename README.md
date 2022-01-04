@@ -13,8 +13,8 @@ Users can use the features through REST api or command-line app.
 
 TODO:
 
-- [ ] Think of a better method of error handling.
-  - [ ] and remove the codes using `unwrap`
+- [x] Think of a better method of error handling.
+  - [x] and remove the codes using `unwrap`
 - [ ] Add logging (using tracing crate)
 - [ ] More testing (ex: adaptors)
 
@@ -294,6 +294,226 @@ async fn main() {
     let adaptor = CliAdaptoer::new(args.data());
     args.run(adaptor).await
 }
+```
+
+### Error handling
+
+`cores/***`, `ports/driven/***`, and `adaptors` for driven define
+their own error with `thiserror` crate.
+They return the error was defined.
+
+`cores/backlog` define the error.
+
+```rust
+#[derive(Debug, Error)]
+pub enum BacklogError {
+    #[error("TypeError: {0:?}")]
+    TypeError(String),
+    #[error("NotFound: {0:?}")]
+    NotFound(String),
+}
+```
+
+and it returns with its own logic.
+
+```rust
+/// The collection can search a specific item and estimate it.
+pub trait EstimatableFromCollection:
+    FindFromCollection<Key = Uuid, Ret = Box<dyn BacklogItem>>
+{
+    /// estimate the specific item.
+    fn estimate_item(&mut self, id: &Uuid, point: StoryPoint) -> BacklogResult<()> {
+        match self.find_by_id_mut(id) {
+            None => Err(BacklogError::not_found(format!(
+                "BacklogItem, id: {} does not found",
+                id
+            ))),
+            Some(item) => {
+                item.estimate(point);
+                Ok(())
+            }
+        }
+    }
+}
+```
+
+`ports/driven/backlog-repo` define error, `adaptors/fs` use it.
+
+```rust
+#[derive(Debug, Error)]
+pub enum BacklogRepositoryError {
+    #[error("BacklogRepositoryError: not found the resource, {0}")]
+    NotFound(String),
+    #[error("BacklogRepositoryError: IO occurred something, {0}")]
+    Io(#[from] std::io::Error),
+    #[error("BacklogRepositoryError: serialize/deserialize yaml occurred something, {0}")]
+    Yaml(#[from] serde_yaml::Error),
+}
+```
+
+```rust
+#[async_trait::async_trait]
+impl BacklogRepository for FsBacklogRepository {
+    async fn get(&self) -> BacklogRepositoryResult<Backlog> {
+        OpenOptions::new()
+            .create(true)
+            // If I use .write(false), I get the error that mean "InvalidInput".
+            .write(true)
+            .truncate(false)
+            .open(&self.path)?;
+        let file = std::fs::File::open(&self.path)?;
+        let backlog = serde_yaml::from_reader(file);
+        match backlog {
+            Err(_) => Ok(Backlog::new()),
+            Ok(backlog) => Ok(backlog),
+        }
+    }
+
+    async fn save(&self, backlog: Backlog) -> BacklogRepositoryResult<()> {
+        let file = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .truncate(true)
+            .open(&self.path)?;
+        serde_yaml::to_writer(file, &backlog)?;
+        Ok(())
+    }
+}
+```
+
+On the other hand, `ports/driver/backlog-service` defines 3 kinds of errors.
+
+- IncommingError
+- OutcommingError
+- BusinessLogicError
+
+IncommingError represents input error.
+When calling the service, we often validate the input value. If something happens,
+we raise the IncommingError.  
+
+OutcommingError represents driven error.
+When the service uses some driven interfaces, if something happens,
+we raise the  OutcommingError.
+
+BusinessLogicError represents that something happens in `cores/backlog`.
+
+So, When implementing the `backlog-service`, we treat 3 types of errors.
+
+I decided to use the `eyre` crate how to treat the errors in `backlog-service`.
+The usage is as follows.
+
+But, I have problems that was difficult to use the 3 types of errors properly.
+
+**Problem 1**
+
+Can't use backtrace in stable.
+
+If we get the error, we want to find where is wrong.
+My first codes.
+
+```rust
+enum UseCaseError {
+    ...etc
+}
+
+fn something() -> Result<(), UseCaseError> {
+    do()?;
+}
+```
+
+This code works correctly, but it does not tell us where is wrong.
+So, I decide to use `eyre` or `anyhow` for error reporting.
+
+**Problem 2**
+
+I want to handle Incomming/Outcomming/BusinessLogic.
+
+I decided to use `eyre` for error handling. I write as follows.
+
+```rust
+repo.save(backlog.clone()).await
+    .wrap_err("fail to save the backlog")?;
+```
+
+`wrap_err` provide `eyre::WrapErr` trait.
+This code has backtrace feature.
+So we can get the file name and line number that was happened.
+
+But `repo.save()` return `BacklogRepositoryError`.
+I want to cast to `OutcommingError` because the error handler
+in `rest` or `cli` becomes complicated.
+
+Why it's complicated. If it does not cast the error, the handler needs to know
+many error types. This case is simple but in the future, we need many driven interfaces.
+At that time, the handler must know all error types. I want to avoid it.
+
+**Solution**
+
+I think that I should cast the error before calling the `.wrap_err()` method.
+
+```rust
+repo.save(backlog.clone()).await
+    .map_err(OutcommingError::from)
+    .wrap_err("fail to save the backlog")?;
+```
+
+And for shortening this boilerplate I implemented `WrapErrExt` trait.
+
+```rust
+// without context message
+repo.save(backlog.clone()).await.wrap::<OutcommingError>()?;
+// with context message
+repo.save(backlog.clone()).await
+    .wrap_msg::<OutcommingError>("fail to save the backlog")?;
+```
+
+### For example
+
+Overall
+
+```rust
+async fn estimate_item(
+    &self,
+    cmd: impl EstimateItemCmd + 'async_trait,
+) -> eyre::Result<Backlog> {
+    // IncommingError handling
+    let id = cmd.id().wrap_err("fail to get item id")?;
+    let point = cmd.point().wrap_err("fail to get story point")?;
+
+    let repo = self.provide();
+
+    // OutcommingError handling
+    let mut backlog = repo
+        .get()
+        .await
+        .wrap_msg::<OutcommingError>("fail to get backlog")?;
+    
+    // BusinessLogicError handling
+    backlog
+        .estimate_item(&id, point)
+        .wrap::<BusinessLogicError>()?;
+
+    // OutcommingError handling
+    repo.save(backlog.clone()).await.wrap::<OutcommingError>()?;
+    Ok(backlog)
+}
+```
+
+Error handler in `rest`
+
+```rust
+let (status, msg) = if let Some(_) = err.downcast_ref::<IncommingError>() {
+    (StatusCode::BAD_REQUEST, format!("{:?}", err))
+} else if let Some(_) = err.downcast_ref::<OutcommingError>() {
+    (StatusCode::INTERNAL_SERVER_ERROR, format!("{:?}", err))
+} else if let Some(_) = err.downcast_ref::<BusinessLogicError>() {
+    (StatusCode::INTERNAL_SERVER_ERROR, format!("{:?}", err))
+} else {
+    (
+        StatusCode::INTERNAL_SERVER_ERROR,
+        format!("unexpected error"),
+    )
+};
 ```
 
 ## How to use

@@ -5,7 +5,6 @@ use axum::{
 use backlog::{Assignee, Backlog, StoryPoint, Uuid};
 use backlog_service::{
     AssignItemCmd, BacklogUseCase, Command, EstimateItemCmd, IncommingError, IncommingResult,
-    UseCaseResult,
 };
 use serde::Deserialize;
 
@@ -53,12 +52,13 @@ struct EstimateRequest {
 impl Command for EstimateRequest {}
 
 impl EstimateItemCmd for EstimateRequest {
-    fn id(&self) -> UseCaseResult<Uuid> {
+    fn id(&self) -> IncommingResult<Uuid> {
         Ok(self.id)
     }
 
     fn point(&self) -> IncommingResult<StoryPoint> {
-        StoryPoint::new(self.point).map_err(|err| IncommingError::invalid_value("invalid", err.to_string()))
+        StoryPoint::new(self.point)
+            .map_err(|err| IncommingError::invalid_value("StoryPoint", err.to_string()))
     }
 }
 
@@ -70,7 +70,7 @@ struct AssignRequest {
 impl Command for AssignRequest {}
 
 impl AssignItemCmd for AssignRequest {
-    fn id(&self) -> UseCaseResult<Uuid> {
+    fn id(&self) -> IncommingResult<Uuid> {
         Ok(self.id)
     }
 
