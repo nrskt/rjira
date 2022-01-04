@@ -4,8 +4,9 @@ use backlog::{
 };
 use backlog_repo::{BacklogRepository, ProvideBacklogRepository};
 use eyre::WrapErr;
+use eyre_ext::WrapErrExt;
 
-use crate::{BusinessLogicError, IncommingResult, OutcommingError, UseCaseResult, WrapErrExt};
+use crate::{BusinessLogicError, IncommingResult, OutcommingError, UseCaseResult};
 
 #[async_trait::async_trait]
 pub trait BacklogUseCase: ProvideBacklogRepository {
@@ -50,7 +51,7 @@ pub trait BacklogUseCase: ProvideBacklogRepository {
             .wrap_msg::<OutcommingError>("fail to get backlog")?;
         backlog
             .estimate_item(&id, point)
-            .wrap_msg::<BusinessLogicError>("this is error message")?;
+            .wrap::<BusinessLogicError>()?;
         repo.save(backlog.clone()).await.wrap::<OutcommingError>()?;
         Ok(backlog)
     }

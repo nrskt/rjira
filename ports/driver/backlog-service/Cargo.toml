@@ -9,6 +9,7 @@ edition = "2021"
 thiserror = "1.0.30"
 backlog-repo = { path = "../../driven/backlog-repo" }
 backlog = { path = "../../../cores/backlog" }
+eyre-ext = { path = "../../../utils/eyre-ext" }
 async-trait = "0.1.52"
 anyhow = "1.0.52"
 eyre = "0.6.5"
