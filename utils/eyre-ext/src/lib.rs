@@ -43,7 +43,7 @@ where
             Ok(r) => Ok(r),
             Err(e) => {
                 let report = Report::new(e);
-                let report = report.wrap_err(format!("{}", msg));
+                let report = report.wrap_err(msg.to_string());
                 Err(report)
             }
         }
