@@ -15,7 +15,7 @@ TODO:
 
 - [x] Think of a better method of error handling.
   - [x] and remove the codes using `unwrap`
-- [ ] Add logging (using tracing crate)
+- [x] Add logging (using tracing crate)
 - [ ] More testing (ex: adaptors)
 
 ## Architecture
