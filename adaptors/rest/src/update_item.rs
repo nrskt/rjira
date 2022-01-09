@@ -10,6 +10,7 @@ use serde::Deserialize;
 
 use super::{RestAdaptor, RestError, RestResult};
 
+#[tracing::instrument]
 pub async fn update_item_handler(
     Extension(ctx): Extension<RestAdaptor>,
     Path(item_id): Path<Uuid>,
@@ -38,7 +39,7 @@ pub async fn update_item_handler(
     ctx.get_backlog().await.map(Json).map_err(RestError::from)
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct UpdateItemRequest {
     point: Option<u8>,
     assignee: Option<String>,
