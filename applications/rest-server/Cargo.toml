@@ -8,3 +8,7 @@ edition = "2021"
 [dependencies]
 tokio = { version = "1.15.0", features = ["macros", "rt-multi-thread"] }
 rest = { path ="../../adaptors/rest" }
+tracing-subscriber = { version = "0.3.5", features = ["json"] }
+tower-http = { version = "0.2.0", features = ["trace"] }
+tracing = "0.1.29"
+hyper = "0.14.16"

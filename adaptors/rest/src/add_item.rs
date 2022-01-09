@@ -5,6 +5,7 @@ use serde::Deserialize;
 
 use super::{RestAdaptor, RestError, RestResult};
 
+#[tracing::instrument]
 pub async fn add_item_handler(
     Extension(ctx): Extension<RestAdaptor>,
     Json(payload): Json<AddItemRequest>,
@@ -15,7 +16,7 @@ pub async fn add_item_handler(
         .map_err(RestError::from)
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct AddItemRequest {
     item_type: String,
     title: String,
